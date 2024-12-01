@@ -148,8 +148,18 @@ clipboard_copy_command() {
         fi
     elif command_exists "clip.exe"; then # WSL clipboard command
         echo "cat | clip.exe"
-    elif command_exists "wl-copy"; then # wl-clipboard: Wayland clipboard utilities
-        echo "wl-copy"
+    elif [ -n "$WAYLAND_DISPLAY" ] && command_exists "wl-copy"; then # wl-clipboard: Wayland clipboard utilities
+        local wlcopy_selection
+        if [[ $mouse == "true" ]]; then
+            wlcopy_selection="$(yank_selection_mouse)"
+        else
+            wlcopy_selection="$(yank_selection)"
+        fi
+        if [[ $wlcopy_selection == "primary" ]]; then
+            echo "wl-copy -t 'text/plain' -n --$wlcopy_selection"
+        else
+            echo "wl-copy -t 'text/plain' -n"
+        fi
     elif command_exists "xsel"; then
         local xsel_selection
         if [[ $mouse == "true" ]]; then
