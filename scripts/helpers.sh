@@ -160,6 +160,14 @@ clipboard_copy_command() {
         else
             echo "wl-copy -t 'text/plain' -n"
         fi
+    elif command_exists "xclip"; then
+        local xclip_selection
+        if [[ $mouse == "true" ]]; then
+            xclip_selection="$(yank_selection_mouse)"
+        else
+            xclip_selection="$(yank_selection)"
+        fi
+        echo "xclip -r -selection $xclip_selection > /dev/null 2>&1"
     elif command_exists "xsel"; then
         local xsel_selection
         if [[ $mouse == "true" ]]; then
@@ -168,14 +176,6 @@ clipboard_copy_command() {
             xsel_selection="$(yank_selection)"
         fi
         echo "xsel -i --$xsel_selection"
-    elif command_exists "xclip"; then
-        local xclip_selection
-        if [[ $mouse == "true" ]]; then
-            xclip_selection="$(yank_selection_mouse)"
-        else
-            xclip_selection="$(yank_selection)"
-        fi
-        echo "xclip -selection $xclip_selection"
     elif command_exists "putclip"; then # cygwin clipboard command
         echo "putclip"
     elif [ -n "$(custom_copy_command)" ]; then
